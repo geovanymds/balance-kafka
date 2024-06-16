@@ -1,0 +1,20 @@
+GET http://localhost:8000/balances/d2b896d1-4b63-4b77-b2f2-1cbb9c17b7e0 HTTP/1.1
+Content-Type: application/json
+
+
+POST http://localhost:8080/transactions HTTP/1.1
+Content-Type: application/json
+
+{
+    "account_id_from": "d2b896d1-4b63-4b77-b2f2-1cbb9c17b7e0",
+    "account_id_to": "8e2ec8a1-394d-4c87-83b1-8f68e4a1028f",
+    "amount": 1
+}
+
+
+
+
+
+
+
+

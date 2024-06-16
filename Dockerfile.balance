@@ -1,0 +1,14 @@
+FROM golang:1.22
+
+WORKDIR /app/
+
+RUN rm migrate.linux-amd64.deb
+
+COPY . .
+
+RUN apt-get update && apt-get install -y librdkafka-dev
+RUN go mod tidy
+
+EXPOSE 8000
+
+CMD [ "go", "run", "cmd/balance/main.go" ]

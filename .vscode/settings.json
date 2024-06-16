@@ -1,0 +1,17 @@
+{
+    "workbench.colorTheme": "Min Dark",
+    "workbench.iconTheme": "vscode-icons",
+    "[go]": {
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "golang.go"
+    },
+    "editor.rulers": [
+        140
+    ],
+    "workbench.colorCustomizations": {
+        "editorRuler.foreground": "#ff4081"
+    },
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrapColumn": 140,
+}
