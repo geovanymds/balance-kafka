@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
 	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
+	consumer_manager "github.com/geovanymds/balance/events"
 	"github.com/geovanymds/balance/internal/domain/balance/usecase"
 	web "github.com/geovanymds/balance/internal/infra/api"
 	"github.com/geovanymds/balance/internal/infra/api/webserver"
@@ -37,37 +39,33 @@ func main() {
 	balanceRepository := repository.NewBalanceRepository(balanceDb)
 	balanceUsecase := usecase.NewBalanceUseCase(balanceRepository)
 
-	webserver := webserver.NewWebServer(":8000")
+	webserver := webserver.NewWebServer(":3003")
 
 	balanceHandler := web.NewBalanceController(&ctx, balanceUsecase)
 
 	webserver.AddHandler("/balances/{accountId}", balanceHandler.GetBalance)
 
+	fmt.Println("Balance server is running")
+	go webserver.Start()
+
+	consumerManager := consumer_manager.InitConsumers(db)
+
 	consumer := kafka.NewConsumer(config.NewKafkaConfig(), []string{"balances"})
 	channel := make(chan *ckafka.Message)
-
-	// balanceUpdatedConsumer := consumer_proccess_balances.NewConsumerBalances(balanceUsecase)
-
 	go func() {
-		myMessage := <-channel
+		for kafkaMessage := range channel {
+			var parsedMessage kafka.Message
 
-		fmt.Printf("Message on %s: %s\n", *myMessage.TopicPartition.Topic, string(myMessage.Value))
-		// if myMessage.Value == "BalanceUpdated" {
-		// 	balanceUpdatedConsumer.Proccess()
-		// }
-		consumer.Consume(channel)
-		fmt.Println("Proccessing queue")
+			err = json.Unmarshal(kafkaMessage.Value, &parsedMessage)
+
+			if err == nil {
+				consumerManager.Consumers[parsedMessage.Name].Proccess(kafkaMessage.Value)
+			}
+		}
 	}()
+	consumer.Consume(channel)
 
-	go func() {
-		webserver.Start()
-		fmt.Println("Balance server is running")
-	}()
-
-	fmt.Println("Server and consumer started. To exit press CTRL+C")
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	<-sig
-	fmt.Println("Shutting down...")
-
+	sigchan := make(chan os.Signal, 1)
+	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
+	<-sigchan
 }

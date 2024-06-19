@@ -21,8 +21,7 @@ CREATE TABLE transactions (
 );
 
 CREATE TABLE balances (
-    id VARCHAR(255) PRIMARY KEY, 
-    account_id VARCHAR(255) NOT NULL, 
+    account_id VARCHAR(255) PRIMARY KEY,
     value FLOAT NOT NULL, 
     created_at DATE NOT NULL, 
     updated_at DATE NOT NULL

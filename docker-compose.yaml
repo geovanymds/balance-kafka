@@ -14,19 +14,21 @@ services:
 
   balance:
     container_name: balance
+    entrypoint: air -c ./.air.toml
     build:
       context: .
       dockerfile: Dockerfile.balance
     volumes:
       - .:/app
     ports:
-      - 8000:8000
+      - 3003:3003
     depends_on:
       mysql:
         condition: service_healthy
 
   mysql:
     image: mysql:5.7
+    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wallet

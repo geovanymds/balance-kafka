@@ -6,5 +6,6 @@ func NewKafkaConfig() *kafka.ConfigMap {
 	return &kafka.ConfigMap{
 		"bootstrap.servers": "kafka:29092",
 		"group.id":          "balance",
+		"auto.offset.reset": "earliest",
 	}
 }

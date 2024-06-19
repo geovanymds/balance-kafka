@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/geovanymds/balance/internal/domain/balance/dto"
@@ -13,33 +14,27 @@ func (uc *BalanceUseCase) StoreUpdateBalances(input *dto.CreateOrUpdateBalanceIn
 
 	balances := []entity.Balance{}
 
-	balances = append(balances, *entity.NewBalance(input.AccountIDFrom, input.BalanceAccountFrom))
-	balances = append(balances, *entity.NewBalance(input.AccountIDTo, input.BalanceAccountTo))
-
-	errs := make(chan error, 2)
+	balances = append(balances, *entity.NewBalance(input.AccountIDFrom, input.BalanceAccountFrom, nil, nil))
+	balances = append(balances, *entity.NewBalance(input.AccountIDTo, input.BalanceAccountTo, nil, nil))
 
 	for _, balance := range balances {
 		go func() {
-			errs <- uc.StoreUpdate(&balance, &wg)
+			defer wg.Done()
+			uc.StoreUpdate(&balance)
 		}()
 	}
 
-	for err := range errs {
-		if err != nil {
-			return err
-		}
-	}
+	wg.Wait()
 
 	return nil
 }
 
-func (uc *BalanceUseCase) StoreUpdate(balance *entity.Balance, wg *sync.WaitGroup) error {
-	defer wg.Done()
+func (uc *BalanceUseCase) StoreUpdate(balance *entity.Balance) error {
 
 	err := uc.Repository.StoreUpdate(balance)
 
 	if err != nil {
-		return err
+		fmt.Println(err)
 	}
 
 	return nil

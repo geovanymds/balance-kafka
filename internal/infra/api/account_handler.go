@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/geovanymds/balance/internal/domain/balance/dto"
 	"github.com/geovanymds/balance/internal/domain/balance/usecase"
@@ -21,7 +22,7 @@ func NewBalanceController(ctx *context.Context, uc *usecase.BalanceUseCase) *Bal
 }
 
 func (h *BalanceController) GetBalance(w http.ResponseWriter, r *http.Request) {
-	accountID := r.URL.Path
+	accountID := strings.Split(r.URL.Path, "/")[len(strings.Split(r.URL.Path, "/"))-1]
 
 	if accountID == "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
@@ -33,7 +34,7 @@ func (h *BalanceController) GetBalance(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		fmt.Println(err)
+		fmt.Println("Account ID not provided")
 		return
 	}
 

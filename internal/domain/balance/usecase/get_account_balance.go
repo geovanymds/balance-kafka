@@ -12,6 +12,6 @@ func (uc *BalanceUseCase) GetBalanceByAccountId(input *dto.GetAccountBalanceDto)
 		return nil, err
 	}
 
-	return entity.NewBalance(balance.AccountID, balance.Value), nil
+	return entity.NewBalance(balance.AccountID, balance.Value, balance.CreatedAt, balance.UpdatedAt), nil
 
 }

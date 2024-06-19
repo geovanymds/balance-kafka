@@ -16,7 +16,7 @@ func NewBalanceRepository(db *database.ClientDB) *BalanceRepository {
 }
 
 func (r *BalanceRepository) StoreUpdate(balance *entity.Balance) error {
-	stmt, err := r.dbClient.DB.Prepare("INSERT INTO balances (id, account_id, value, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE value=?;")
+	stmt, err := r.dbClient.DB.Prepare("INSERT INTO balances (account_id, value, created_at, updated_at) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE value=?;")
 
 	if err != nil {
 		return err
@@ -25,7 +25,6 @@ func (r *BalanceRepository) StoreUpdate(balance *entity.Balance) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		balance.ID,
 		balance.AccountID,
 		balance.Value,
 		balance.CreatedAt,
@@ -42,7 +41,7 @@ func (r *BalanceRepository) StoreUpdate(balance *entity.Balance) error {
 
 func (r *BalanceRepository) Find(accountId string) (*entity.Balance, error) {
 	balance := &entity.Balance{}
-	stmt, err := r.dbClient.DB.Prepare("SELECT id, account_id, value, created_at, updated_at FROM balances WHERE account_id = ?")
+	stmt, err := r.dbClient.DB.Prepare("SELECT account_id, value, created_at, updated_at FROM balances WHERE account_id = ?")
 
 	if err != nil {
 		return nil, err
@@ -52,7 +51,7 @@ func (r *BalanceRepository) Find(accountId string) (*entity.Balance, error) {
 
 	row := stmt.QueryRow(accountId)
 
-	if err := row.Scan(&balance.ID, &balance.AccountID, &balance.Value, &balance.CreatedAt, &balance.UpdatedAt); err != nil {
+	if err := row.Scan(&balance.AccountID, &balance.Value, &balance.CreatedAt, &balance.UpdatedAt); err != nil {
 		return nil, err
 	}
 	return balance, nil

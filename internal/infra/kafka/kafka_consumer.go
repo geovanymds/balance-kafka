@@ -22,14 +22,12 @@ func (c *Consumer) Consume(msgChan chan *ckafka.Message) error {
 	consumer, err := ckafka.NewConsumer(c.ConfigMap)
 
 	if err != nil {
-		fmt.Println(err)
 		panic(err)
 	}
 
 	err = consumer.SubscribeTopics(c.Topics, nil)
 
 	if err != nil {
-		fmt.Println(err)
 		panic(err)
 	}
 
@@ -38,5 +36,6 @@ func (c *Consumer) Consume(msgChan chan *ckafka.Message) error {
 		if err == nil {
 			msgChan <- msg
 		}
+		fmt.Println(err)
 	}
 }
